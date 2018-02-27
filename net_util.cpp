@@ -45,6 +45,15 @@ void StSetSocketBuffSize(int fd, int nRcvBuffSize, int nSndBuffSize)
 	setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (const int *)&nSndBuffSize, sizeof(int));
 }
 
+int StConnect(int fd, const char *pszAddr, unsigned short port)
+{
+	struct sockaddr_in addr; 
+	memset(&addr, 0x00, sizeof addr); 
+	addr.sin_family = PF_INET; 
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = inet_addr(pszAddr); 
 
+	return connect(fd, (struct sockaddr *)&addr, sizeof addr);
+}
 
 
