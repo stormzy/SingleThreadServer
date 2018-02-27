@@ -11,7 +11,7 @@ int StSocket(int type)
 	return socket(PF_INET, type, 0);
 }
 
-bool StBind(int fd, const char *pszAddr, unsigned short port)
+int StBind(int fd, const char *pszAddr, unsigned short port)
 {
 	struct sockaddr_in addr;
 	addr.sin_family = PF_INET; 
@@ -25,7 +25,7 @@ bool StBind(int fd, const char *pszAddr, unsigned short port)
 	int f = -1; 
 	int len = sizeof(int);
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &f, len);
-	return bind(fd, (const struct sockaddr *)&addr, sizeof addr) == 0;
+	return bind(fd, (const struct sockaddr *)&addr, sizeof addr);
 }
 
 int StListen(int fd, int backlog)
@@ -56,4 +56,10 @@ int StConnect(int fd, const char *pszAddr, unsigned short port)
 	return connect(fd, (struct sockaddr *)&addr, sizeof addr);
 }
 
+int StAccept(int fd)
+{
+	struct sockaddr_in other_addr; 
+	socklen_t len; 
+	return accept(fd, (struct sockaddr *)&other_addr, &len);
+}
 
