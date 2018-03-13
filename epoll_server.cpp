@@ -1,6 +1,9 @@
 #include "epoll_server.h"
 #include "net_util.h"
 #include <sys/epoll.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
 
 /*
   typedef union epoll_data {
@@ -25,7 +28,10 @@ EpollServer::EpollServer() : m_port(0), m_running(false)
 
 EpollServer::~EpollServer() 
 {
-	close(m_fd); 
+	if (m_running){
+		m_running = false;
+		close(m_fd);
+	}
 	//
 }
 
@@ -39,7 +45,7 @@ bool EpollServer::Start(const char *pszAddr, unsigned short port)
 		ERROR_PRINT("set nonblock error"); 
 		return false; 
 	}
-	int n = StBind(pszAddr, port); 
+	int n = StBind(fd, pszAddr, port); 
 	if (n != 0) {
 		ERROR_PRINT("fd bind error"); 
 		return false; 
@@ -56,7 +62,7 @@ bool EpollServer::Start(const char *pszAddr, unsigned short port)
 	}
 	m_epfd = epfd; 
 	struct epoll_event ev; 
-	memset(&ev, 0x00, sizeof epoll_event); 
+	memset(&ev, 0x00, sizeof ev); 
 	ev.events = EPOLLIN || EPOLLOUT; 
 	ev.data.fd = fd; 
 	if (epoll_ctl(m_epfd, EPOLL_CTL_ADD, fd, &ev) == -1) {
@@ -69,7 +75,7 @@ bool EpollServer::Start(const char *pszAddr, unsigned short port)
 
 void EpollServer::Stop()
 {
-	closesocket(m_fd);
+	close(m_fd);
 	m_running = false; 
 }
 
@@ -82,7 +88,7 @@ int EpollServer::RunService(const char *pszAddr, unsigned short port)
 	}
 	
 	struct epoll_event events[MAX_EPOLL_SIZE]; 
-	enum {EPOLL_TIMEOUT = 50}
+	enum {EPOLL_TIMEOUT = 50};
 	while(m_running)
 	{
 		int nfds = epoll_wait(m_epfd, events, MAX_EPOLL_SIZE, EPOLL_TIMEOUT); 
@@ -124,12 +130,12 @@ void EpollServer::DealNewConnection()
 	}
 	StSetNonBlock(newfd); 
 	struct epoll_event ev; 
-	memset(&ev, 0x00, sizeof epoll_event); 
+	memset(&ev, 0x00, sizeof ev); 
 	ev.events = EPOLLIN || EPOLLET; 
 	ev.data.fd = newfd; 
 	if (epoll_ctl(m_epfd, EPOLL_CTL_ADD, newfd, &ev) == -1) {
 		ERROR_PRINT("epoll ctl add fd error"); 
-		return false; 
+		return; 
 	}
 	m_acceptFds.push_back(newfd); 
 }

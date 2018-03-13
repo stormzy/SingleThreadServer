@@ -16,7 +16,7 @@ private:
 	void DealNewConnection(); 
 	void DealFdEvent(int fd); 
 	void DealOtherSrvEvent(int fd); 
-	int recvMessageWebsocket(int fd); 
+	int recvMessageWebsocket(int fd, char *rcvBuffer); 
 private:
 	char m_addr[64]; 
 	unsigned short m_port;
