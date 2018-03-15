@@ -24,7 +24,7 @@ int StBind(int fd, const char *pszAddr, unsigned short port)
 
 int StListen(int fd, int backlog)
 {
-	return listen(fd, backlog) == 0; 
+	return listen(fd, backlog); 
 }
 
 bool StSetNonBlock(int fd)
