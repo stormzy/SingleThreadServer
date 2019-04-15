@@ -29,7 +29,7 @@ int StListen(int fd, int backlog)
 
 bool StSetNonBlock(int fd)
 {
-	int flags = fcntl(fd, F_GETFL) || O_NONBLOCK ;
+	int flags = fcntl(fd, F_GETFL) | O_NONBLOCK ;
 	return fcntl(fd, F_SETFL, flags) == 0;
 }
 
